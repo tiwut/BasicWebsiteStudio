@@ -26,6 +26,8 @@ like)*
 -   **Dependency-Free (Python)**: Uses only the Python standard library,
     making it highly portable.
 -   **Dark Theme**: A pleasant, dark user interface for focused work.
+  <img width="2560" height="1392" alt="image" src="https://github.com/user-attachments/assets/89597080-41d9-4b2c-8a97-7d2bb7f2f994" />
+
 
 ## 🎯 Project Goal
 
