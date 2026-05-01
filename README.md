@@ -11,7 +11,7 @@ in a `.deb` package.
 *(This is a representative screenshot of what the application might look
 like)*
 
-## ✨ Key Features
+## Key Features
 
 -   **Project Wizard**: Create new projects with a standard directory
     structure (`src/css`, `src/js`, `assets`).
@@ -29,7 +29,7 @@ like)*
   <img width="2560" height="1392" alt="image" src="https://github.com/user-attachments/assets/89597080-41d9-4b2c-8a97-7d2bb7f2f994" />
 
 
-## 🎯 Project Goal
+## Project Goal
 
 The original version of this application was developed using PySide6.
 This version has been completely ported to **Tkinter** to meet a crucial
@@ -41,7 +41,7 @@ simplifies the creation of a standalone Debian package (`.deb`), as the
 only core system dependency is `python3-tk`, which is readily available
 on most desktop Linux systems.
 
-## 🛠️ Requirements
+## Requirements
 
 No `pip` installations are needed for the Python code itself. However, a
 few system packages are required.
@@ -56,7 +56,7 @@ few system packages are required.
 1.  **Node.js and npm**: Required to run JavaScript-based build
     processes.
 
-## 🚀 Installation & Usage
+## Installation & Usage
 
 Follow these steps to get the application running.
 
@@ -88,7 +88,7 @@ Run the Python script from your terminal.
 
 The application window should now appear.
 
-## 📝 How It Works
+## How It Works
 
 ### Project Creation
 
@@ -126,7 +126,7 @@ The \"Build Project\" button is a simple shortcut for the
 The output from the build process will be displayed in the \"Output\"
 panel at the bottom of the application.
 
-## 📜 License
+## License
 
 This project is licensed under the MIT License. See the `LICENSE` file
 for more details.
