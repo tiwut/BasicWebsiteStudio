@@ -3,7 +3,6 @@ import os
 import json
 from pathlib import Path
 
-# Import necessary PySide6 modules
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QFileDialog, QTreeView, QTextEdit, QDockWidget,
     QWizard, QWizardPage, QVBoxLayout, QLabel, QLineEdit, QPushButton,
@@ -14,18 +13,14 @@ from PySide6.QtGui import QSyntaxHighlighter, QTextCharFormat, QColor, QIcon, QA
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWebEngineCore import QWebEngineSettings
 
-# --- Simple Syntax Highlighter ---
 class SimpleSyntaxHighlighter(QSyntaxHighlighter):
     def __init__(self, parent):
         super().__init__(parent)
         self.highlighting_rules = []
-        # Rule for HTML tags
         html_tag_format = QTextCharFormat(); html_tag_format.setForeground(QColor("#569CD6"))
         self.highlighting_rules.append((r'<[/?!]?\w+', html_tag_format)); self.highlighting_rules.append((r'>', html_tag_format))
-        # Rule for attributes
         attribute_format = QTextCharFormat(); attribute_format.setForeground(QColor("#9CDCFE"))
         self.highlighting_rules.append((r'\b\w+(?=\=)', attribute_format))
-        # Rule for attribute values (strings)
         string_format = QTextCharFormat(); string_format.setForeground(QColor("#CE9178"))
         self.highlighting_rules.append((r'"[^"]*"', string_format)); self.highlighting_rules.append((r"'[^']*'", string_format))
         
@@ -34,7 +29,6 @@ class SimpleSyntaxHighlighter(QSyntaxHighlighter):
             for match in __import__('re').finditer(pattern, text):
                 self.setFormat(match.start(), match.end() - match.start(), format)
 
-# --- Project Creation Wizard ---
 class ProjectWizard(QWizard):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -45,17 +39,14 @@ class ProjectWizard(QWizard):
         project_name = self.field("projectName"); project_path = self.field("projectPath")
         full_path = Path(project_path) / project_name
         try:
-            # Create directory structure
             os.makedirs(full_path / "src" / "js", exist_ok=True)
             os.makedirs(full_path / "src" / "css", exist_ok=True)
             os.makedirs(full_path / "assets" / "images", exist_ok=True)
             
-            # Create default files
             (full_path / "src" / "index.html").write_text(f"<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>{project_name}</title>\n    <link rel=\"stylesheet\" href=\"css/style.css\">\n</head>\n<body>\n    <h1>Welcome to {project_name}</h1>\n    <script src=\"js/main.js\"></script>\n</body>\n</html>")
             (full_path / "src" / "css" / "style.css").write_text("body {\n    font-family: sans-serif;\n    background-color: #f0f0f0;\n    color: #111;\n}")
             (full_path / "src" / "js" / "main.js").write_text("console.log('Project loaded successfully!');")
-            
-            # Create project config file
+           
             project_config = {"name": project_name, "version": "1.0.0"}
             with open(full_path / "project.bws", "w") as f: json.dump(project_config, f, indent=4)
             
@@ -81,7 +72,6 @@ class CreateProjectPage(QWizardPage):
         path = QFileDialog.getExistingDirectory(self, "Select Location", self.path_edit.text());
         if path: self.path_edit.setText(path)
 
-# --- The Main Application Window ---
 class BasicWebsiteStudio(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -94,7 +84,7 @@ class BasicWebsiteStudio(QMainWindow):
         self._setup_toolbar()
         self._setup_ui_layout()
         
-        self.update_action_states() # Initially disable actions
+        self.update_action_states()
 
     def _setup_menus(self):
         file_menu = self.menuBar().addMenu("&File")
@@ -159,8 +149,8 @@ class BasicWebsiteStudio(QMainWindow):
         self.current_project_path = path
         self.project_view.setRootIndex(self.fs_model.index(path))
         self.setWindowTitle(f"Basic Website Studio - {Path(path).name}")
-        self.update_action_states() # Enable actions now that a project is loaded
-        self.play_project()         # Show a preview immediately
+        self.update_action_states()
+        self.play_project()
 
     def open_file_from_tree(self, index):
         file_path = self.fs_model.filePath(index)
@@ -204,15 +194,11 @@ class BasicWebsiteStudio(QMainWindow):
         self.build_process.readyReadStandardOutput.connect(self.handle_build_output)
         self.build_process.finished.connect(self.on_build_finished)
         
-        # IMPORTANT: Set the working directory so npm can find package.json
         self.build_process.setWorkingDirectory(self.current_project_path)
 
-        # Defines the actual command to be run.
-        # NOTE: This requires Node.js and npm to be installed, and for the
-        # project to have a 'package.json' with a "build" script.
         self.build_process.start("npm", ["run", "build"])
         
-        self.build_action.setEnabled(False) # Disable button during build
+        self.build_action.setEnabled(False)
 
     def handle_build_output(self):
         data = self.build_process.readAllStandardOutput().data().decode()
@@ -225,11 +211,10 @@ class BasicWebsiteStudio(QMainWindow):
         else:
             self.output_console.append(f"\nBuild failed with exit code: {exit_code}")
         self.build_process = None
-        self.build_action.setEnabled(True) # Re-enable the button
+        self.build_action.setEnabled(True)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    # A simple stylesheet for a dark look
     app.setStyleSheet("QWidget { background-color: #2b2b2b; color: #f0f0f0; } QMainWindow, QDockWidget, QTabWidget, QMenu, QMenuBar, QToolBar { background-color: #3c3c3c; } QTreeView { background-color: #2b2b2b; border: none; } QTextEdit { background-color: #1e1e1e; font-family: Consolas, monospace; border: none; } QPushButton, QLineEdit { background-color: #555; border: 1px solid #777; padding: 5px; } QPushButton:hover { background-color: #666; } QWizard, QMessageBox { background-color: #3c3c3c; }")
     window = BasicWebsiteStudio()
     window.show()
