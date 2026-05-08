@@ -6,14 +6,12 @@ import threading
 from pathlib import Path
 import webbrowser
 
-# Import necessary Tkinter modules
 from tkinter import (
     Tk, Frame, Menu, Text, Scrollbar, messagebox,
     StringVar, Label, Entry, Button, filedialog, PanedWindow, Toplevel
 )
 from tkinter import ttk
 
-# --- Simple Syntax Highlighter for Tkinter Text Widget ---
 class SimpleSyntaxHighlighter:
     def __init__(self, text_widget):
         self.text_widget = text_widget
@@ -34,11 +32,9 @@ class SimpleSyntaxHighlighter:
         self.highlight()
 
     def highlight(self):
-        # Remove all existing tags to avoid overlaps
         for tag in ['tag', 'attribute', 'string']:
             self.text_widget.tag_remove(tag, '1.0', 'end')
         
-        # Apply new tags
         content = self.text_widget.get('1.0', 'end-1c')
         for pattern, tag_name in self.rules:
             import re
@@ -47,36 +43,27 @@ class SimpleSyntaxHighlighter:
                 end_index = f"1.0+{match.end()}c"
                 self.text_widget.tag_add(tag_name, start_index, end_index)
 
-# --- Project Creation Wizard ---
 class ProjectWizard(object):
     def __init__(self, parent):
         self.parent = parent
         self.result = None
-        
         self.top = Toplevel(parent)
         self.top.title("Create New Project")
-        
-        # Simple layout
         main_frame = ttk.Frame(self.top, padding=10)
         main_frame.pack(fill='both', expand=True)
-
         ttk.Label(main_frame, text="Project Name:").grid(row=0, column=0, sticky='w', pady=2)
         self.name_edit = ttk.Entry(main_frame, width=50)
         self.name_edit.grid(row=1, column=0, columnspan=2, sticky='ew')
-
         ttk.Label(main_frame, text="Location:").grid(row=2, column=0, sticky='w', pady=2)
         self.path_edit = ttk.Entry(main_frame)
         self.path_edit.insert(0, str(Path.home()))
-        self.path_edit.grid(row=3, column=0, sticky='ew')
-        
+        self.path_edit.grid(row=3, column=0, sticky='ew')   
         self.browse_button = ttk.Button(main_frame, text="Browse...", command=self.select_path)
         self.browse_button.grid(row=3, column=1, sticky='ew', padx=(5,0))
-
         button_frame = ttk.Frame(main_frame)
         button_frame.grid(row=4, column=0, columnspan=2, pady=(10,0), sticky='e')
         ttk.Button(button_frame, text="Create", command=self.accept).pack(side='left')
         ttk.Button(button_frame, text="Cancel", command=self.top.destroy).pack(side='left', padx=(5,0))
-
         self.top.transient(parent)
         self.top.grab_set()
         self.parent.wait_window(self.top)
@@ -96,26 +83,19 @@ class ProjectWizard(object):
 
         full_path = Path(project_path) / project_name
         try:
-            # Create directory structure
             os.makedirs(full_path / "src" / "js", exist_ok=True)
             os.makedirs(full_path / "src" / "css", exist_ok=True)
             os.makedirs(full_path / "assets" / "images", exist_ok=True)
-            
-            # Create default files
             (full_path / "src" / "index.html").write_text(f"<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>{project_name}</title>\n    <link rel=\"stylesheet\" href=\"css/style.css\">\n</head>\n<body>\n    <h1>Welcome to {project_name}</h1>\n    <script src=\"js/main.js\"></script>\n</body>\n</html>", encoding='utf-8')
             (full_path / "src" / "css" / "style.css").write_text("body {\n    font-family: sans-serif;\n    background-color: #f0f0f0;\n    color: #111;\n}", encoding='utf-8')
             (full_path / "src" / "js" / "main.js").write_text("console.log('Project loaded successfully!');", encoding='utf-8')
-            
-            # Create project config file
             project_config = {"name": project_name, "version": "1.0.0"}
             with open(full_path / "project.bws", "w", encoding='utf-8') as f: json.dump(project_config, f, indent=4)
-            
             self.result = str(full_path)
             self.top.destroy()
         except Exception as e:
             messagebox.showerror("Error", f"Could not create project:\n{e}", parent=self.top)
 
-# --- The Main Application Window ---
 class BasicWebsiteStudio(Tk):
     def __init__(self):
         super().__init__()
@@ -123,18 +103,17 @@ class BasicWebsiteStudio(Tk):
         self.geometry("1600x900")
         self.current_project_path = None
         self.build_process = None
-        self.open_tabs = {} # To track file paths and their corresponding tabs
+        self.open_tabs = {}
 
         self._setup_styles()
         self._setup_menus()
         self._setup_ui_layout()
         
-        self.update_action_states() # Initially disable actions
+        self.update_action_states()
 
     def _setup_styles(self):
         style = ttk.Style(self)
         style.theme_use('clam')
-        # Dark theme configuration
         style.configure("TFrame", background="#2b2b2b")
         style.configure("TLabel", background="#2b2b2b", foreground="#f0f0f0")
         style.configure("TButton", background="#555", foreground="#f0f0f0", borderwidth=1)
@@ -156,42 +135,29 @@ class BasicWebsiteStudio(Tk):
         self.menubar.add_cascade(label="File", menu=file_menu)
 
     def _setup_ui_layout(self):
-        # Toolbar
         toolbar = ttk.Frame(self, style="TFrame")
         self.play_button = ttk.Button(toolbar, text="▶ Play (Preview)", command=self.play_project)
         self.play_button.pack(side='left', padx=2, pady=2)
         self.build_button = ttk.Button(toolbar, text="✓ Build Project", command=self.build_project)
         self.build_button.pack(side='left', padx=2, pady=2)
         toolbar.pack(side='top', fill='x')
-
-        # Main layout using PanedWindow
         main_pane = PanedWindow(self, orient='horizontal', sashrelief='raised', bg='#3c3c3c')
         main_pane.pack(fill='both', expand=True)
-
-        # Project Explorer
-        project_frame = ttk.Frame(main_pane) # Removed width for better auto-sizing
+        project_frame = ttk.Frame(main_pane)
         self.project_view = ttk.Treeview(project_frame)
         self.project_view.pack(fill='both', expand=True)
         self.project_view.bind("<Double-1>", self.on_tree_double_click)
         main_pane.add(project_frame)
-
-        # Right pane (Editor + Console)
         right_pane = PanedWindow(main_pane, orient='vertical', sashrelief='raised', bg='#3c3c3c')
         main_pane.add(right_pane)
-
-        # Editor Tabs
         self.editor_tabs = ttk.Notebook(right_pane)
-        # KORRIGIERTE ZEILE HIER:
         right_pane.add(self.editor_tabs)
-
-        # Output Console
         console_frame = ttk.Frame(right_pane)
         self.output_console = Text(console_frame, wrap='word', state='disabled', bg="#1e1e1e", fg="#f0f0f0", font=("Consolas", 10), borderwidth=0)
         console_scroll = Scrollbar(console_frame, command=self.output_console.yview)
         self.output_console['yscrollcommand'] = console_scroll.set
         console_scroll.pack(side='right', fill='y')
         self.output_console.pack(side='left', fill='both', expand=True)
-        # KORRIGIERTE ZEILE HIER:
         right_pane.add(console_frame)
 
     def create_new_project(self):
@@ -250,9 +216,7 @@ class BasicWebsiteStudio(Tk):
             editor_scroll.pack(side='right', fill='y')
             editor.pack(fill='both', expand=True)
             editor.insert('1.0', content)
-            
             SimpleSyntaxHighlighter(editor)
-            
             self.editor_tabs.add(tab_frame, text=os.path.basename(file_path))
             self.open_tabs[file_path] = tab_frame
             self.editor_tabs.select(tab_frame)
@@ -287,7 +251,6 @@ class BasicWebsiteStudio(Tk):
     def _run_build_process(self):
         try:
             command = ["npm", "run", "build"]
-            # Hide the console window on Windows
             startupinfo = None
             if sys.platform == "win32":
                 startupinfo = subprocess.STARTUPINFO()
@@ -327,7 +290,6 @@ class BasicWebsiteStudio(Tk):
             self.output_console.insert('end', message + '\n')
             self.output_console.see('end')
             self.output_console.config(state='disabled')
-        # Schedule the GUI update on the main thread
         self.after(0, append)
 
 if __name__ == "__main__":
